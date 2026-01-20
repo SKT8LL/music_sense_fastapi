@@ -24,3 +24,10 @@
 - 모델 스키마 불일치: meta 문서/스키마부터 확정
 - 레이턴시 초과: 먼저 정확성/테스트 통과, 이후 최적화
 - 패키지 충돌: 중앙 관리로 차단
+
+## 현재 보일러플레이트 상태
+- main.py: /api/v1 health/meta/predict 라우터 include 완료, lifespan에서 DB 테이블 생성 + onnx_session placeholder 바인딩
+- app/routers: health/meta/predict 스키마 고정, predict는 더미 추론 반환(진욱 교체 예정)
+- app/schemas: Health/Meta/Predict 요청/응답 스키마 명시(128→64 float, batch_size 1~32)
+- settings.py: DATABASE_URL, MODEL_PATH, MODEL_VERSION, LOG_LEVEL, ENV 환경변수 지원
+- logger.py: get_logger 헬퍼로 콘솔 로깅 구성

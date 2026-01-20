@@ -1,26 +1,29 @@
-from fastapi import FastAPI
 from contextlib import asynccontextmanager
-from app.database import engine, Base
-from app.routers import health, meta
+
+from fastapi import FastAPI
+
+from app.database import Base, engine
+from app.routers import health, meta, predict
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: Create tables for now (naive migration)
     Base.metadata.create_all(bind=engine)
-    app.state.onnx_session = None  # Placeholder for model loading
-    print("Startup complete. ONNX session initialized (placeholder).")
+    app.state.onnx_session = None
     yield
-    # Shutdown
-    print("Shutdown complete.")
 
 
-app = FastAPI(lifespan=lifespan)
+def create_app() -> FastAPI:
+    app = FastAPI(title="FLO SENSE API", version="0.1.0", lifespan=lifespan)
+    app.include_router(health.router)
+    app.include_router(meta.router)
+    app.include_router(predict.router)
 
-app.include_router(health.router)
-app.include_router(meta.router)
+    @app.get("/")
+    def read_root():
+        return {"message": "FLO SENSE API"}
+
+    return app
 
 
-@app.get("/")
-def read_root():
-    return {"message": "FLO SENSE API"}
+app = create_app()
